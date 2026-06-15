@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Agro SENAI HUB</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#020617;--line:rgba(103,232,249,.25);--cyan:#67e8f9;--green:#6ee7b7;--lime:#bef264;--orange:#fb923c;--red:#fca5a5;--text:#f8fafc;--muted:#94a3b8;--shadow:0 28px 80px rgba(8,145,178,.18)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:Inter,Arial,Helvetica,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 10%,rgba(14,165,233,.28),transparent 30%),radial-gradient(circle at 88% 15%,rgba(34,197,94,.18),transparent 28%),radial-gradient(circle at 50% 100%,rgba(251,146,60,.12),transparent 35%),#020617;overflow-x:hidden}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;background-image:linear-gradient(rgba(103,232,249,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(103,232,249,.07) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,black,transparent 92%)}
+    body:after{content:"";position:fixed;inset:-25%;z-index:-3;background:conic-gradient(from 180deg at 50% 50%,transparent,rgba(103,232,249,.08),transparent,rgba(110,231,183,.05),transparent);animation:spin 18s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}@keyframes scan{to{transform:translateX(100%)}}@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(110,231,183,0)}50%{box-shadow:0 0 30px rgba(110,231,183,.45)}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .hidden{display:none!important}.glass{border:1px solid var(--line);background:linear-gradient(135deg,rgba(8,20,42,.86),rgba(2,6,23,.74));box-shadow:var(--shadow);backdrop-filter:blur(16px);border-radius:28px;overflow:hidden;position:relative}.glass:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(103,232,249,.07),transparent);transform:translateX(-100%);animation:scan 6s ease-in-out infinite}
+    .brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--cyan);font-size:12px;text-transform:uppercase;letter-spacing:.19em;font-weight:900;margin-bottom:14px}.brand span{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 22px var(--green);animation:pulse 2s ease-in-out infinite}
+    .login{min-height:100vh;display:grid;place-items:center;padding:18px}.login-card{width:min(560px,100%);padding:30px}
+    h1{font-size:clamp(38px,6vw,72px);line-height:.88;letter-spacing:-.055em;text-transform:uppercase;margin-bottom:14px;background:linear-gradient(90deg,#fff,var(--cyan),var(--green));-webkit-background-clip:text;color:transparent}.login-card p,.hero p{color:#cbd5e1;line-height:1.65;margin-bottom:18px}
+    label{display:block;color:#9bdcf2;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;margin:12px 0 7px}input,select{width:100%;padding:13px 14px;border-radius:15px;border:1px solid rgba(103,232,249,.24);background:rgba(2,6,23,.76);color:#fff;outline:none}
+    .btn{border:1px solid rgba(103,232,249,.28);border-radius:15px;padding:13px 15px;color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center;gap:8px;transition:.2s}.btn:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.55)}.primary{background:linear-gradient(90deg,rgba(14,165,233,.95),rgba(34,197,94,.88));width:100%;margin-top:16px}.ghost{background:rgba(103,232,249,.08);width:100%;margin-top:10px}.danger{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.3)}.small{width:auto;margin:0;padding:10px 12px}.msg{margin-top:12px;color:#cbd5e1;font-size:13px;line-height:1.4}
+    .app{width:min(1540px,100%);margin:auto;padding:18px}.top{padding:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.top h2{font-size:clamp(28px,4vw,42px);text-transform:uppercase;letter-spacing:-.03em}.top p{color:#cbd5e1;margin-top:4px}.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .admin-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.panel{padding:20px;margin-bottom:16px}.panel h3,.map h3,.chart h3,.table h3{text-transform:uppercase;letter-spacing:.13em;font-size:14px;margin-bottom:14px;color:#fff;display:flex;justify-content:space-between;gap:10px;align-items:center}.mt{margin-top:18px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.variables-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .var-item{border:1px solid rgba(103,232,249,.18);border-radius:17px;padding:12px;background:rgba(2,6,23,.55);display:flex;align-items:flex-start;gap:10px}.var-item input{width:auto;margin-top:2px}.var-item strong{font-size:13px;color:#fff}.var-item span{display:block;color:#94a3b8;font-size:11px;margin-top:4px}
+    .admin-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.admin-actions .btn{width:100%;margin:0}pre{white-space:pre-wrap;background:rgba(2,6,23,.72);border:1px solid rgba(103,232,249,.17);border-radius:16px;padding:14px;color:#b7e9f5;line-height:1.45}
+    .client-create-box{margin-top:18px;padding:18px;border:1px solid rgba(110,231,183,.24);background:linear-gradient(135deg,rgba(16,185,129,.11),rgba(2,6,23,.62));border-radius:22px}.client-create-box p{color:#cbd5e1;line-height:1.5;margin-bottom:12px}.access-box{margin-top:14px;padding:14px;border-radius:16px;background:rgba(2,6,23,.72);border:1px solid rgba(103,232,249,.18);color:#cbd5e1;line-height:1.6;white-space:pre-wrap;font-size:13px}.access-box strong{color:#67e8f9}
+    .hero{padding:24px;display:grid;grid-template-columns:1fr 170px;gap:18px;align-items:center;margin-bottom:16px}.hero h1{font-size:clamp(34px,5vw,70px)}.status-row{display:flex;gap:10px;flex-wrap:wrap}.status-row span{border:1px solid rgba(110,231,183,.25);background:rgba(16,185,129,.09);color:#bbf7d0;border-radius:999px;padding:8px 11px;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:900}
+    .ring{width:155px;height:155px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(103,232,249,.08) 40%,transparent 41%),conic-gradient(var(--cyan) 0 74%,rgba(103,232,249,.12) 74%);margin:auto;text-align:center;position:relative;animation:float 3s ease-in-out infinite}.ring:before{content:"";position:absolute;inset:13px;border-radius:50%;background:#020617;border:1px solid rgba(103,232,249,.25)}.ring strong,.ring small{position:relative;z-index:2}.ring strong{display:block;font-size:34px}.ring small{display:block;color:var(--green);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:900}
+    .map,.chart,.table{padding:18px;margin-bottom:16px}.map iframe{width:100%;height:420px;border:0;border-radius:18px;filter:saturate(1.12) contrast(1.08) brightness(.78)}.map-foot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;color:#cbd5e1;font-size:13px;flex-wrap:wrap}.map-foot a{color:#67e8f9;text-decoration:none;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}.data-card{border:1px solid var(--line);background:linear-gradient(135deg,rgba(8,20,42,.82),rgba(2,6,23,.72));box-shadow:0 20px 55px rgba(0,0,0,.22);border-radius:24px;padding:18px;cursor:pointer;transition:.2s;min-height:150px}.data-card:hover,.expandable:hover{transform:translateY(-4px);border-color:rgba(103,232,249,.45);box-shadow:0 30px 80px rgba(8,145,178,.22)}
+    .card-top{display:flex;justify-content:space-between;gap:10px}.card-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:rgba(103,232,249,.09);border:1px solid rgba(103,232,249,.25);font-size:24px}.data-card small{display:block;color:#9bdcf2;text-transform:uppercase;letter-spacing:.14em;font-weight:900;margin-bottom:7px}.data-card strong{font-size:40px;line-height:1}.unit{color:#a7c6d8;font-size:15px;margin-left:4px}.card-status{margin-top:12px;color:var(--green);font-size:13px;font-weight:850}.hint{font-size:10px;color:#9bdcf2;border:1px solid rgba(103,232,249,.18);background:rgba(103,232,249,.08);padding:5px 9px;border-radius:999px;white-space:nowrap}
+    .chart{height:360px}.table-scroll{overflow:auto;border-radius:18px}table{width:100%;min-width:780px;border-collapse:collapse}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid rgba(103,232,249,.12);font-size:14px}th{background:rgba(103,232,249,.08);color:#a5f3fc;font-size:12px;text-transform:uppercase;letter-spacing:.09em}td:first-child{color:#7dd3fc;font-weight:950}
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}.modal.active{display:flex}.dialog{width:min(1100px,96vw);max-height:90vh;overflow:auto;border:1px solid rgba(103,232,249,.28);border-radius:28px;background:linear-gradient(135deg,rgba(8,20,42,.96),rgba(2,6,23,.94));box-shadow:0 30px 100px rgba(0,0,0,.45);padding:22px}.modal-top{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}.modal-top h3{text-transform:uppercase;letter-spacing:.09em}.modal-top button{background:rgba(103,232,249,.08)}#modalContent iframe{height:620px!important}#modalContent .chart{height:520px}
+    .footer-credit{margin:18px auto 0;padding:15px 18px;border:1px solid rgba(103,232,249,.25);background:linear-gradient(135deg,rgba(8,20,42,.82),rgba(2,6,23,.74));box-shadow:0 18px 45px rgba(8,145,178,.16);backdrop-filter:blur(14px);border-radius:18px;color:#cbd5e1;text-align:center;text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:800}.footer-credit strong{color:#67e8f9;font-weight:950}.footer-credit span{color:#6ee7b7}
+    @media(max-width:1180px){.admin-grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.variables-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.app{padding:12px}.top,.hero{grid-template-columns:1fr;display:grid}.actions{justify-content:stretch}.small{width:100%}.form-grid,.variables-grid,.admin-actions,.cards{grid-template-columns:1fr}.map iframe{height:340px}.hero{padding:18px}.ring{margin:auto}}
+  </style>
+</head>
+<body>
+  <main id="loginView" class="login">
+    <section class="login-card glass">
+      <div class="brand"><span></span> Smart Agro SENAI HUB</div>
+      <h1>Supervisório Agropecuário Inteligente</h1>
+      <p>Login por cliente, variáveis configuráveis, cards dinâmicos, mapa e telemetria em tempo real via Firebase.</p>
+      <label>E-mail</label><input id="emailInput" type="email" placeholder="cliente@fazenda.com">
+      <label>Senha</label><input id="passwordInput" type="password" placeholder="Digite a senha">
+      <button id="loginBtn" class="btn primary">Entrar</button>
+      <button id="demoBtn" class="btn ghost">Abrir demonstração local</button>
+      <div id="loginMsg" class="msg"></div>
+    </section>
+  </main>
+
+  <main id="appView" class="app hidden">
+    <header class="top glass">
+      <div>
+        <div class="brand"><span></span> Smart Agro SENAI HUB • Agropecuária Inteligente</div>
+        <h2 id="dashboardTitle">Supervisório IoT</h2>
+        <p id="dashboardSubtitle">Monitoramento em tempo real</p>
+      </div>
+      <div class="actions">
+        <button id="adminTabBtn" class="btn ghost small hidden">Admin</button>
+        <button id="dashTabBtn" class="btn ghost small">Supervisório</button>
+        <button id="logoutBtn" class="btn danger small">Sair</button>
+      </div>
+    </header>
+
+    <section id="adminView" class="hidden">
+      <div class="admin-grid">
+        <section class="panel glass">
+          <h3>Configuração do cliente</h3>
+          <div class="form-grid">
+            <div><label>Cliente ID</label><input id="clienteIdAdmin" value="cliente001"></div>
+            <div><label>Nome do cliente/fazenda</label><input id="nomeClienteAdmin" value="SENAI HUB"></div>
+            <div><label>Título do supervisório</label><input id="tituloAdmin" value="Smart Agro SENAI HUB"></div>
+            <div><label>Subtítulo</label><input id="subtituloAdmin" value="Agropecuária Inteligente em Tempo Real"></div>
+            <div><label>Segmento</label><select id="segmentoAdmin"><option>Agropecuária Inteligente</option><option>Pecuária de Corte</option><option>Vaca Leiteira</option><option>Piscicultura</option><option>Irrigação</option><option>Aviário</option><option>Suinocultura</option><option>Energia Rural</option></select></div>
+            <div><label>E-mail do cliente</label><input id="emailClienteAdmin" placeholder="cliente@fazenda.com"></div>
+          </div>
+
+          <section class="client-create-box">
+            <h3>Novo cliente automático</h3>
+            <p>Preencha os dados abaixo para criar automaticamente: Authentication, /usuarios, /clientes e /telemetria inicial.</p>
+            <div class="form-grid">
+              <div><label>Cliente ID</label><input id="novoClienteId" value="cliente002"></div>
+              <div><label>Nome da fazenda/cliente</label><input id="novoClienteNome" value="Fazenda Boa Vista"></div>
+              <div><label>E-mail do cliente</label><input id="novoClienteEmail" value="cliente2@fazenda.com"></div>
+              <div><label>Senha provisória</label><input id="novoClienteSenha" value="Cliente@123456" type="text"></div>
+              <div><label>Segmento</label><select id="novoClienteSegmento"><option>Agropecuária Inteligente</option><option>Pecuária de Corte</option><option>Vaca Leiteira</option><option>Piscicultura</option><option>Irrigação</option><option>Aviário</option><option>Suinocultura</option><option>Energia Rural</option></select></div>
+              <div><label>Node ID</label><input id="novoClienteNode" value="NODE-01"></div>
+              <div><label>Latitude</label><input id="novoClienteLatitude" value="-9.944281"></div>
+              <div><label>Longitude</label><input id="novoClienteLongitude" value="-67.871021"></div>
+              <div><label>Título do supervisório</label><input id="novoClienteTitulo" value="Fazenda Boa Vista - Smart Agro"></div>
+              <div><label>Subtítulo</label><input id="novoClienteSubtitulo" value="Agropecuária Inteligente em Tempo Real"></div>
+            </div>
+            <div class="admin-actions">
+              <button id="createClientFullBtn" class="btn primary">Criar cliente completo</button>
+              <button id="copyClientAccessBtn" class="btn ghost">Copiar acesso</button>
+              <button id="loadClientToAdminBtn" class="btn ghost">Carregar no admin</button>
+            </div>
+            <div id="clientCreateMsg" class="access-box">Aguardando cadastro de novo cliente.</div>
+          </section>
+
+          <h3 class="mt">Variáveis habilitadas</h3>
+          <div id="variablesAdmin" class="variables-grid"></div>
+
+          <div class="admin-actions">
+            <button id="saveConfigBtn" class="btn primary">Salvar configuração</button>
+            <button id="seedTelemetryBtn" class="btn ghost">Criar telemetria de teste</button>
+            <button id="seedCatalogBtn" class="btn ghost">Criar catálogo</button>
+          </div>
+          <div id="adminMsg" class="msg"></div>
+        </section>
+
+        <section class="panel glass">
+          <h3>Estrutura Firebase</h3>
+          <pre>/usuarios/{uid}
+/clientes/{clienteId}
+/telemetria/{clienteId}/nodes/NODE-01
+/variaveisDisponiveis</pre>
+          <h3 class="mt">Caminho do ESP32 Gateway</h3>
+          <pre>/telemetria/cliente001/nodes/NODE-01</pre>
+        </section>
+      </div>
+    </section>
+
+    <section id="dashboardView">
+      <section class="hero glass expandable">
+        <div>
+          <h1 id="farmName">Smart Agro SENAI HUB</h1>
+          <p id="farmDescription">Supervisório configurável para fazenda, piscicultura, leite, irrigação e infraestrutura agropecuária.</p>
+          <div class="status-row"><span id="firebaseStatus">Firebase conectando...</span><span id="lastUpdate">Atualização: --</span><span id="nodeStatus">Node: --</span></div>
+        </div>
+        <div class="ring"><div><strong id="mainValue">--</strong><small id="mainLabel">Indicador</small></div></div>
+      </section>
+      <section class="map glass expandable">
+        <h3>Mapa em tempo real <small class="hint">clique para ampliar</small></h3>
+        <iframe id="mapFrame" src="https://maps.google.com/maps?q=-9.944281,-67.871021&z=17&t=k&output=embed"></iframe>
+        <div class="map-foot"><span id="coordLabel">-9.944281, -67.871021</span><a id="openMapBtn" target="_blank">Abrir Google Maps</a></div>
+      </section>
+      <section id="dynamicCards" class="cards"></section>
+      <section class="chart glass expandable"><h3>Histórico das principais variáveis <small class="hint">clique para ampliar</small></h3><canvas id="historyChart"></canvas></section>
+      <section class="table glass expandable"><h3>Telemetria completa <small class="hint">clique para ampliar</small></h3><div class="table-scroll"><table><thead><tr><th>Variável</th><th>Valor</th><th>Descrição</th></tr></thead><tbody id="telemetryTable"></tbody></table></div></section>
+    </section>
+
+    <footer class="footer-credit"><strong>SENAI HUB</strong> Inovação e Tecnologia <span>|</span> Desenvolvido por <strong>Joelson M. Mendes</strong> - Esp. em Energia e IoT.</footer>
+  </main>
+
+  <div id="modal" class="modal"><div class="dialog"><div class="modal-top"><h3 id="modalTitle">Visualização ampliada</h3><button id="modalClose" class="btn ghost small">Fechar ✕</button></div><div id="modalContent"></div></div></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+    const firebaseConfig={apiKey:"AIzaSyBgJqsiEyVKjk1EsIYqQtFZ_H1WROycHUo",authDomain:"smart-ranch-acre-b98ed.firebaseapp.com",databaseURL:"https://smart-ranch-acre-b98ed-default-rtdb.firebaseio.com",projectId:"smart-ranch-acre-b98ed",storageBucket:"smart-ranch-acre-b98ed.firebasestorage.app",messagingSenderId:"281568886568",appId:"1:281568886568:web:1c2082cf682159bead1a1d"};
+    const ADMIN_EMAILS=["jmm.engiot@gmail.com"],DEFAULT_CLIENTE_ID="cliente001",DEFAULT_NODE_ID="NODE-01";
+    const catalogo={agua:{nome:"Nível de água",unidade:"%",icone:"💧",categoria:"Pecuária",descricao:"Nível do bebedouro ou reservatório"},racao:{nome:"Nível de ração",unidade:"%",icone:"🌾",categoria:"Pecuária",descricao:"Nível do cocho ou silo"},bateria:{nome:"Bateria do nó",unidade:"%",icone:"🔋",categoria:"Energia",descricao:"Carga estimada do nó de campo"},temperatura:{nome:"Temperatura",unidade:"°C",icone:"☀️",categoria:"Ambiente",descricao:"Temperatura ambiente ou da água"},rssi:{nome:"Sinal LoRa RSSI",unidade:"dBm",icone:"📡",categoria:"Comunicação",descricao:"Força do sinal LoRa"},snr:{nome:"Qualidade SNR",unidade:"",icone:"📈",categoria:"Comunicação",descricao:"Relação sinal/ruído LoRa"},phAgua:{nome:"pH da água",unidade:"pH",icone:"🧪",categoria:"Piscicultura",descricao:"Controle de acidez/alcalinidade da água"},oxigenioDissolvido:{nome:"Oxigênio dissolvido",unidade:"mg/L",icone:"🐟",categoria:"Piscicultura",descricao:"Oxigênio disponível para os peixes"},turbidez:{nome:"Turbidez",unidade:"NTU",icone:"🌊",categoria:"Piscicultura",descricao:"Qualidade visual da água"},nivelTanque:{nome:"Nível do tanque",unidade:"%",icone:"🛢️",categoria:"Piscicultura",descricao:"Nível de água do tanque"},statusBomba:{nome:"Status da bomba",unidade:"",icone:"⚙️",categoria:"Irrigação",descricao:"Bomba ligada ou desligada"},umidadeSolo:{nome:"Umidade do solo",unidade:"%",icone:"🌱",categoria:"Irrigação",descricao:"Umidade medida no solo"},producaoLeite:{nome:"Produção de leite",unidade:"L/dia",icone:"🥛",categoria:"Vaca Leiteira",descricao:"Produção diária de leite"},temperaturaLeite:{nome:"Temperatura do leite",unidade:"°C",icone:"❄️",categoria:"Vaca Leiteira",descricao:"Temperatura do tanque de leite"},amonia:{nome:"Amônia",unidade:"ppm",icone:"🧫",categoria:"Aviário/Suínos",descricao:"Gases no ambiente"},umidadeAr:{nome:"Umidade do ar",unidade:"%",icone:"💨",categoria:"Ambiente",descricao:"Umidade relativa do ar"}};
+    const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app),$=id=>document.getElementById(id),show=id=>$(id).classList.remove("hidden"),hide=id=>$(id).classList.add("hidden"),msg=(id,t)=>$(id).textContent=t,now=()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    let clienteIdAtual=DEFAULT_CLIENTE_ID,configAtual=null,chart,labels=[],series={},demoInterval=null;
+    function defaultConfig(){return{nomeCliente:"SENAI HUB",tituloSupervisorio:"Smart Agro SENAI HUB",subtitulo:"Agropecuária Inteligente em Tempo Real",tipoAplicacao:"Agropecuária Inteligente",ativo:true,variaveisAtivas:{agua:true,racao:true,bateria:true,temperatura:true,rssi:true,snr:true,phAgua:false,oxigenioDissolvido:false,turbidez:false,nivelTanque:false,statusBomba:false,umidadeSolo:false,producaoLeite:false,temperaturaLeite:false,amonia:false,umidadeAr:false}}}
+    function demoData(){return{clienteId:clienteIdAtual,nodeId:DEFAULT_NODE_ID,nome:"Bebedouro Pasto Norte",fazenda:"Smart Agro SENAI HUB",setor:"Piquete 01",tipo:"Bebedouro + Cocho",latitude:-9.944281,longitude:-67.871021,agua:82,racao:64,bateria:96,temperatura:28.7,rssi:-67,snr:12,phAgua:7.2,oxigenioDissolvido:6.8,turbidez:12,nivelTanque:74,producaoLeite:320.5,temperaturaLeite:4.2,umidadeSolo:58,statusBomba:1,amonia:8,umidadeAr:72,contador:0,gatewayIp:"192.168.5.80",status:"online"}}
+    function isAdmin(email){return ADMIN_EMAILS.includes((email||"").toLowerCase())}
+    function activeVars(){const a=configAtual?.variaveisAtivas||defaultConfig().variaveisAtivas;return Object.keys(a).filter(k=>a[k]&&catalogo[k])}
+    function fmt(v){if(v===undefined||v===null||v==="")return"--";if(typeof v==="number")return Math.abs(v%1)>0?v.toFixed(2).replace(/\.00$/,""):String(v);return String(v)}
+    function statusFor(k,v){const n=Number(v);if(["agua","racao","bateria","nivelTanque","umidadeSolo"].includes(k)){if(n<25)return"Crítico";if(n<45)return"Atenção";return"Normal"}if(k==="phAgua")return(n<6.5||n>8.5)?"Fora da faixa":"Adequado";if(k==="oxigenioDissolvido")return n<5?"Oxigênio baixo":"Adequado";if(k==="rssi"){if(n>-70)return"Sinal excelente";if(n>-90)return"Sinal funcional";return"Sinal fraco"}return"Monitorado"}
+    function varsSegmento(seg){const base={agua:true,racao:true,bateria:true,temperatura:true,rssi:true,snr:true,phAgua:false,oxigenioDissolvido:false,turbidez:false,nivelTanque:false,statusBomba:false,umidadeSolo:false,producaoLeite:false,temperaturaLeite:false,amonia:false,umidadeAr:false};if(seg==="Piscicultura")return{...base,agua:false,racao:false,phAgua:true,oxigenioDissolvido:true,turbidez:true,nivelTanque:true,statusBomba:true};if(seg==="Vaca Leiteira")return{...base,producaoLeite:true,temperaturaLeite:true,umidadeAr:true};if(seg==="Irrigação")return{...base,racao:false,umidadeSolo:true,nivelTanque:true,statusBomba:true};if(seg==="Aviário"||seg==="Suinocultura")return{...base,amonia:true,umidadeAr:true};if(seg==="Energia Rural")return{...base,agua:false,racao:false,statusBomba:true};return base}
+    function renderAdminVariables(cfg=defaultConfig()){const active=cfg.variaveisAtivas||{};$("variablesAdmin").innerHTML=Object.entries(catalogo).map(([k,v])=>`<label class="var-item"><input type="checkbox" data-var="${k}" ${active[k]?"checked":""}><div><strong>${v.icone} ${v.nome}</strong><span>${v.categoria} • ${v.unidade||"status"}</span></div></label>`).join("")}
+    function readAdminForm(){const variaveisAtivas={};document.querySelectorAll("#variablesAdmin input").forEach(i=>variaveisAtivas[i.dataset.var]=i.checked);return{nomeCliente:$("nomeClienteAdmin").value.trim()||"Cliente",tituloSupervisorio:$("tituloAdmin").value.trim()||"Smart Agro SENAI HUB",subtitulo:$("subtituloAdmin").value.trim()||"Agropecuária Inteligente em Tempo Real",tipoAplicacao:$("segmentoAdmin").value,emailCliente:$("emailClienteAdmin").value.trim(),ativo:true,variaveisAtivas}}
+    async function loadConfig(id){const s=await get(ref(db,`clientes/${id}`));if(s.exists())return s.val();const cfg=defaultConfig();await set(ref(db,`clientes/${id}`),cfg);return cfg}
+    async function saveConfig(){const id=$("clienteIdAdmin").value.trim()||DEFAULT_CLIENTE_ID,cfg=readAdminForm();await update(ref(db,`clientes/${id}`),cfg);clienteIdAtual=id;configAtual=cfg;renderConfig(cfg);renderCards(demoData());msg("adminMsg","Configuração salva com sucesso.")}
+    async function seedCatalog(){await set(ref(db,"variaveisDisponiveis"),catalogo);msg("adminMsg","Catálogo criado/atualizado.")}
+    async function seedTelemetry(){const id=$("clienteIdAdmin").value.trim()||DEFAULT_CLIENTE_ID,d=demoData();d.clienteId=id;d.contador=Math.floor(Math.random()*999);d.atualizadoEmMillis=Date.now();await set(ref(db,`telemetria/${id}/nodes/${DEFAULT_NODE_ID}`),d);msg("adminMsg",`Telemetria criada em /telemetria/${id}/nodes/${DEFAULT_NODE_ID}`)}
+    function configNovoCliente(){const seg=$("novoClienteSegmento").value,nome=$("novoClienteNome").value.trim()||"Fazenda Modelo",clienteId=$("novoClienteId").value.trim()||"cliente002",nodeId=$("novoClienteNode").value.trim()||"NODE-01";return{clienteId,nodeId,nome,email:$("novoClienteEmail").value.trim(),senha:$("novoClienteSenha").value.trim(),latitude:Number($("novoClienteLatitude").value.replace(",","."))||-9.944281,longitude:Number($("novoClienteLongitude").value.replace(",","."))||-67.871021,config:{nomeCliente:nome,tituloSupervisorio:$("novoClienteTitulo").value.trim()||`${nome} - Smart Agro`,subtitulo:$("novoClienteSubtitulo").value.trim()||"Agropecuária Inteligente em Tempo Real",tipoAplicacao:seg,emailCliente:$("novoClienteEmail").value.trim(),ativo:true,variaveisAtivas:varsSegmento(seg)}}}
+    function telemetriaNovo(info){const d=demoData();d.clienteId=info.clienteId;d.nodeId=info.nodeId;d.nome=info.config.tipoAplicacao==="Piscicultura"?"Tanque de Peixes 01":"Ponto Monitorado 01";d.fazenda=info.nome;d.setor=info.config.tipoAplicacao==="Piscicultura"?"Tanque 01":"Setor 01";d.tipo=info.config.tipoAplicacao;d.latitude=info.latitude;d.longitude=info.longitude;d.contador=1;d.atualizadoEmMillis=Date.now();return d}
+    async function criarClienteCompleto(){const info=configNovoCliente();if(!info.email||!info.senha){$("clientCreateMsg").innerHTML="Informe e-mail e senha provisória.";return}$("clientCreateMsg").innerHTML="Criando cliente... aguarde.";try{const secondary=initializeApp(firebaseConfig,"secondary-"+Date.now());const secondaryAuth=getAuth(secondary);const cred=await createUserWithEmailAndPassword(secondaryAuth,info.email,info.senha);const uid=cred.user.uid;await set(ref(db,`usuarios/${uid}`),{nome:info.nome,email:info.email,perfil:"cliente",clienteId:info.clienteId,ativo:true});await set(ref(db,`clientes/${info.clienteId}`),info.config);await set(ref(db,`telemetria/${info.clienteId}/nodes/${info.nodeId}`),telemetriaNovo(info));await set(ref(db,"variaveisDisponiveis"),catalogo);const texto=`Cliente criado com sucesso!\n\nLink de acesso:\nENVIE O LINK DO SUPERVISÓRIO PUBLICADO\n\nCliente ID:\n${info.clienteId}\n\nNome:\n${info.nome}\n\nE-mail:\n${info.email}\n\nSenha provisória:\n${info.senha}\n\nUID:\n${uid}\n\nCaminho da telemetria:\ntelemetria/${info.clienteId}/nodes/${info.nodeId}`;$("clientCreateMsg").innerHTML=texto.replaceAll("\\n","<br>");$("clienteIdAdmin").value=info.clienteId;$("nomeClienteAdmin").value=info.nome;$("tituloAdmin").value=info.config.tituloSupervisorio;$("subtituloAdmin").value=info.config.subtitulo;$("segmentoAdmin").value=info.config.tipoAplicacao;$("emailClienteAdmin").value=info.email;renderAdminVariables(info.config)}catch(e){$("clientCreateMsg").innerHTML="Erro ao criar cliente: "+e.message+"<br><br>Se aparecer permission denied, confira as regras do Realtime Database. Se aparecer email-already-in-use, esse e-mail já existe no Authentication."}}
+    async function copiarAcessoCliente(){const texto=$("clientCreateMsg").innerText||$("clientCreateMsg").textContent;try{await navigator.clipboard.writeText(texto);$("clientCreateMsg").innerHTML=texto.replaceAll("\\n","<br>")+"<br><br><strong>Dados de acesso copiados.</strong>"}catch(e){$("clientCreateMsg").innerHTML=texto.replaceAll("\\n","<br>")+"<br><br>Selecione e copie manualmente."}}
+    function carregarNovoClienteNoAdmin(){const info=configNovoCliente();$("clienteIdAdmin").value=info.clienteId;$("nomeClienteAdmin").value=info.nome;$("tituloAdmin").value=info.config.tituloSupervisorio;$("subtituloAdmin").value=info.config.subtitulo;$("segmentoAdmin").value=info.config.tipoAplicacao;$("emailClienteAdmin").value=info.email;renderAdminVariables(info.config);$("clientCreateMsg").innerHTML="Dados carregados no formulário de configuração."}
+    function renderConfig(cfg){configAtual=cfg||defaultConfig();$("dashboardTitle").textContent=configAtual.tituloSupervisorio;$("dashboardSubtitle").textContent=configAtual.subtitulo;$("farmName").textContent=configAtual.nomeCliente;$("farmDescription").textContent=`${configAtual.tipoAplicacao} • Supervisório configurável por cliente.`}
+    function renderCards(data){$("dynamicCards").innerHTML=activeVars().map(k=>{const m=catalogo[k],val=fmt(data?.[k]);return`<article class="data-card expandable" data-title="${m.nome}"><div class="card-top"><div><small>${m.categoria}</small><strong>${val}</strong><span class="unit">${m.unidade||""}</span></div><div class="card-icon">${m.icone}</div></div><div class="card-status">${statusFor(k,data?.[k])}</div></article>`}).join("");bindExpand()}
+    function renderMap(data){const lat=data?.latitude??-9.944281,lng=data?.longitude??-67.871021;$("coordLabel").textContent=`${lat}, ${lng}`;$("openMapBtn").href=`https://www.google.com/maps?q=${lat},${lng}`;$("mapFrame").src=`https://maps.google.com/maps?q=${lat},${lng}&z=17&t=k&output=embed`}
+    function renderTable(data){const rows=[["clienteId",data?.clienteId||clienteIdAtual,"Cliente vinculado"],["nodeId",data?.nodeId||DEFAULT_NODE_ID,"Nó de campo"],["nome",data?.nome||"--","Ponto monitorado"],["fazenda",data?.fazenda||configAtual?.nomeCliente||"--","Fazenda/projeto"],["setor",data?.setor||"--","Setor/piquete/tanque"],["latitude",data?.latitude??"--","Latitude"],["longitude",data?.longitude??"--","Longitude"],...activeVars().map(k=>[k,`${fmt(data?.[k])} ${catalogo[k].unidade||""}`,catalogo[k].descricao]),["gatewayIp",data?.gatewayIp||"--","IP do Gateway"],["contador",data?.contador??"--","Pacotes"],["status",data?.status||"--","Status"]];$("telemetryTable").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}
+    function setupChart(){chart=new Chart($("historyChart"),{type:"line",data:{labels,datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:"#e5f6ff"}}},scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(148,163,184,.12)"}},y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(148,163,184,.12)"}}}}})}
+    function updateChart(data){if(!chart)setupChart();const vars=activeVars().filter(k=>["agua","racao","bateria","temperatura","phAgua","oxigenioDissolvido","umidadeSolo","nivelTanque","producaoLeite"].includes(k)).slice(0,4);labels.push(now());while(labels.length>12)labels.shift();const colors=["#67e8f9","#bef264","#fb923c","#fca5a5"];vars.forEach((k,i)=>{if(!series[k]){series[k]=[];chart.data.datasets.push({label:catalogo[k].nome,data:series[k],borderColor:colors[i%colors.length],backgroundColor:"rgba(103,232,249,.09)",tension:.35,borderWidth:3,pointRadius:3})}series[k].push(Number(data?.[k]||0));while(series[k].length>12)series[k].shift()});chart.update()}
+    function renderData(data){const d=data||demoData();$("firebaseStatus").textContent="Firebase online";$("lastUpdate").textContent=`Atualização: ${now()}`;$("nodeStatus").textContent=`Node: ${d.nodeId||DEFAULT_NODE_ID}`;const k=activeVars()[0]||"agua";$("mainValue").textContent=fmt(d[k])+(catalogo[k]?.unidade||"");$("mainLabel").textContent=catalogo[k]?.nome||"Indicador";renderCards(d);renderMap(d);renderTable(d);updateChart(d)}
+    function listenTelemetry(id){onValue(ref(db,`telemetria/${id}/nodes/${DEFAULT_NODE_ID}`),s=>renderData(s.exists()?s.val():demoData()))}
+    async function enterAs(id,perfil){clienteIdAtual=id||DEFAULT_CLIENTE_ID;hide("loginView");show("appView");if(perfil==="admin"){show("adminTabBtn");show("adminView");hide("dashboardView")}else{hide("adminTabBtn");hide("adminView");show("dashboardView")}configAtual=await loadConfig(clienteIdAtual);renderAdminVariables(configAtual);renderConfig(configAtual);listenTelemetry(clienteIdAtual)}
+    async function login(){msg("loginMsg","Entrando...");try{const cred=await signInWithEmailAndPassword(auth,$("emailInput").value.trim(),$("passwordInput").value);if(isAdmin(cred.user.email)){await enterAs(DEFAULT_CLIENTE_ID,"admin");return}const s=await get(ref(db,`usuarios/${cred.user.uid}`));if(!s.exists()){msg("loginMsg","Usuário autenticado, mas não vinculado em /usuarios/{uid}.");return}const p=s.val();await enterAs(p.clienteId||DEFAULT_CLIENTE_ID,p.perfil||"cliente")}catch(e){msg("loginMsg","Erro no login: "+e.message)}}
+    function demo(){configAtual=defaultConfig();hide("loginView");show("appView");show("adminTabBtn");hide("adminView");show("dashboardView");renderAdminVariables(configAtual);renderConfig(configAtual);renderData(demoData());if(demoInterval)clearInterval(demoInterval);demoInterval=setInterval(()=>{let d=demoData();d.agua=Math.max(0,Math.min(100,82+Math.round((Math.random()-.5)*10)));d.racao=Math.max(0,Math.min(100,64+Math.round((Math.random()-.5)*8)));d.bateria=Math.max(0,Math.min(100,96+Math.round((Math.random()-.5)*4)));d.temperatura=Number((28.7+(Math.random()-.5)*1.3).toFixed(1));d.rssi=-67+Math.round((Math.random()-.5)*8);d.contador=Math.floor(Math.random()*9999);renderData(d)},4000)}
+    function openModal(card){$("modalContent").innerHTML="";const c=card.cloneNode(true);c.classList.remove("expandable");$("modalContent").appendChild(c);$("modalTitle").textContent=card.dataset.title||card.querySelector("h3")?.textContent?.replace("clique para ampliar","")||"Visualização ampliada";$("modal").classList.add("active");document.body.style.overflow="hidden"}
+    function closeModal(){$("modal").classList.remove("active");$("modalContent").innerHTML="";document.body.style.overflow=""}
+    function bindExpand(){document.querySelectorAll(".expandable").forEach(card=>{if(card.dataset.bound)return;card.dataset.bound="1";card.addEventListener("click",e=>{if(e.target.closest("a,button,iframe,canvas,input,select,label"))return;openModal(card)})})}
+    $("loginBtn").onclick=login;$("demoBtn").onclick=demo;$("logoutBtn").onclick=async()=>{try{await signOut(auth)}catch(e){}location.reload()};$("adminTabBtn").onclick=()=>{show("adminView");hide("dashboardView")};$("dashTabBtn").onclick=()=>{hide("adminView");show("dashboardView")};$("saveConfigBtn").onclick=saveConfig;$("seedTelemetryBtn").onclick=seedTelemetry;$("seedCatalogBtn").onclick=seedCatalog;$("createClientFullBtn").onclick=criarClienteCompleto;$("copyClientAccessBtn").onclick=copiarAcessoCliente;$("loadClientToAdminBtn").onclick=carregarNovoClienteNoAdmin;$("modalClose").onclick=closeModal;$("modal").onclick=e=>{if(e.target.id==="modal")closeModal()};document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+    renderAdminVariables(defaultConfig());setupChart();bindExpand();
+  </script>
+</body>
+</html>
