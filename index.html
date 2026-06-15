@@ -158,6 +158,20 @@
     const catalogo={agua:{nome:"Nível de água",unidade:"%",icone:"💧",categoria:"Pecuária",descricao:"Nível do bebedouro ou reservatório"},racao:{nome:"Nível de ração",unidade:"%",icone:"🌾",categoria:"Pecuária",descricao:"Nível do cocho ou silo"},bateria:{nome:"Bateria do nó",unidade:"%",icone:"🔋",categoria:"Energia",descricao:"Carga estimada do nó de campo"},temperatura:{nome:"Temperatura",unidade:"°C",icone:"☀️",categoria:"Ambiente",descricao:"Temperatura ambiente ou da água"},rssi:{nome:"Sinal LoRa RSSI",unidade:"dBm",icone:"📡",categoria:"Comunicação",descricao:"Força do sinal LoRa"},snr:{nome:"Qualidade SNR",unidade:"",icone:"📈",categoria:"Comunicação",descricao:"Relação sinal/ruído LoRa"},phAgua:{nome:"pH da água",unidade:"pH",icone:"🧪",categoria:"Piscicultura",descricao:"Controle de acidez/alcalinidade da água"},oxigenioDissolvido:{nome:"Oxigênio dissolvido",unidade:"mg/L",icone:"🐟",categoria:"Piscicultura",descricao:"Oxigênio disponível para os peixes"},turbidez:{nome:"Turbidez",unidade:"NTU",icone:"🌊",categoria:"Piscicultura",descricao:"Qualidade visual da água"},nivelTanque:{nome:"Nível do tanque",unidade:"%",icone:"🛢️",categoria:"Piscicultura",descricao:"Nível de água do tanque"},statusBomba:{nome:"Status da bomba",unidade:"",icone:"⚙️",categoria:"Irrigação",descricao:"Bomba ligada ou desligada"},umidadeSolo:{nome:"Umidade do solo",unidade:"%",icone:"🌱",categoria:"Irrigação",descricao:"Umidade medida no solo"},producaoLeite:{nome:"Produção de leite",unidade:"L/dia",icone:"🥛",categoria:"Vaca Leiteira",descricao:"Produção diária de leite"},temperaturaLeite:{nome:"Temperatura do leite",unidade:"°C",icone:"❄️",categoria:"Vaca Leiteira",descricao:"Temperatura do tanque de leite"},amonia:{nome:"Amônia",unidade:"ppm",icone:"🧫",categoria:"Aviário/Suínos",descricao:"Gases no ambiente"},umidadeAr:{nome:"Umidade do ar",unidade:"%",icone:"💨",categoria:"Ambiente",descricao:"Umidade relativa do ar"}};
     const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app),$=id=>document.getElementById(id),show=id=>$(id).classList.remove("hidden"),hide=id=>$(id).classList.add("hidden"),msg=(id,t)=>$(id).textContent=t,now=()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
     let clienteIdAtual=DEFAULT_CLIENTE_ID,configAtual=null,chart,labels=[],series={},demoInterval=null;
+    
+    function emailKey(email){
+      return String(email || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\./g, "_")
+        .replace(/@/g, "_at_")
+        .replace(/#/g, "_")
+        .replace(/\$/g, "_")
+        .replace(/\[/g, "_")
+        .replace(/\]/g, "_")
+        .replace(/\//g, "_");
+    }
+
     function defaultConfig(){return{nomeCliente:"SENAI HUB",tituloSupervisorio:"Smart Agro SENAI HUB",subtitulo:"Agropecuária Inteligente em Tempo Real",tipoAplicacao:"Agropecuária Inteligente",ativo:true,variaveisAtivas:{agua:true,racao:true,bateria:true,temperatura:true,rssi:true,snr:true,phAgua:false,oxigenioDissolvido:false,turbidez:false,nivelTanque:false,statusBomba:false,umidadeSolo:false,producaoLeite:false,temperaturaLeite:false,amonia:false,umidadeAr:false}}}
     function demoData(){return{clienteId:clienteIdAtual,nodeId:DEFAULT_NODE_ID,nome:"Bebedouro Pasto Norte",fazenda:"Smart Agro SENAI HUB",setor:"Piquete 01",tipo:"Bebedouro + Cocho",latitude:-9.944281,longitude:-67.871021,agua:82,racao:64,bateria:96,temperatura:28.7,rssi:-67,snr:12,phAgua:7.2,oxigenioDissolvido:6.8,turbidez:12,nivelTanque:74,producaoLeite:320.5,temperaturaLeite:4.2,umidadeSolo:58,statusBomba:1,amonia:8,umidadeAr:72,contador:0,gatewayIp:"192.168.5.80",status:"online"}}
     function isAdmin(email){return ADMIN_EMAILS.includes((email||"").toLowerCase())}
